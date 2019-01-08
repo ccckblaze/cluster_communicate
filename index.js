@@ -112,83 +112,87 @@ ClusterMessages.prototype.initialise = function(){
 function emitWorkerEvents(self, message){
     let eventName = message[self.metaKey].eventName
 
-    // Loop over all listeners that are set up and call them.
-    self.listeners[eventName].forEach(function (callback, index, array){
-        /* Callback is the actual event listener function `.on(name, callback)`, we call it
-         * for all `onMasterEvent` listeners.
-         *
-         * The callback function itself takes a callback parameter that allows the master
-         * to send back a response to the worker. */
-        callback(message.data, function(response){
+    if(self.listeners.hasOwnProperty(eventName)){
+        // Loop over all listeners that are set up and call them.
+        self.listeners[eventName].forEach(function (callback, index, array){
+            /* Callback is the actual event listener function `.on(name, callback)`, we call it
+             * for all `onMasterEvent` listeners.
+             *
+             * The callback function itself takes a callback parameter that allows the master
+             * to send back a response to the worker. */
+            callback(message.data, function(response){
 
-            // If there is no callback, don't do anything.
-            if(!message[self.metaKey].hasOwnProperty('id')){
-                return
-            }
+                // If there is no callback, don't do anything.
+                if(!message[self.metaKey].hasOwnProperty('id')){
+                    return
+                }
 
-            // Strip the original message of properties we don't need (data)
-            let responseMessage = {
-                id: message[self.metaKey].id,
-                response: response,
-                eventName: message[self.metaKey].eventName,
-                fromMaster: true
-            }
+                // Strip the original message of properties we don't need (data)
+                let responseMessage = {
+                    id: message[self.metaKey].id,
+                    response: response,
+                    eventName: message[self.metaKey].eventName,
+                    fromMaster: true
+                }
 
-            // When all event listeners have been called, tell the worker to dispose of the callback.
-            if(index == array.length - 1){
-                // responseMessage.deleteCallback = true
-            }
+                // When all event listeners have been called, tell the worker to dispose of the callback.
+                if(index == array.length - 1){
+                    // responseMessage.deleteCallback = true
+                }
 
-            cluster.worker.send({
-                [self.metaKey]: responseMessage
+                cluster.worker.send({
+                    [self.metaKey]: responseMessage
+                })
+
             })
-
         })
-    })
+    }
 }
 
 function emitMasterEvents(self, message){
     let eventName = message[self.metaKey].eventName
 
-    // Loop over all listeners that are set up and call them.
-    self.listeners[eventName].forEach(function (callback, index, array){
-        /* Callback is the actual event listener function `.on(name, callback)`, we call it
-         * for all `onMasterEvent` listeners.
-         *
-         * The callback function itself takes a callback parameter that allows the master
-         * to send back a response to the worker. */
-        callback(message.data, function(response){
+    if(self.listeners.hasOwnProperty(eventName)){
+        // Loop over all listeners that are set up and call them.
+        self.listeners[eventName].forEach(function (callback, index, array){
+            /* Callback is the actual event listener function `.on(name, callback)`, we call it
+             * for all `onMasterEvent` listeners.
+             *
+             * The callback function itself takes a callback parameter that allows the master
+             * to send back a response to the worker. */
+            callback(message.data, function(response){
 
-            // If there is no callback, don't do anything.
-            if(!message[self.metaKey].hasOwnProperty('id')){
-                return
-            }
+                // If there is no callback, don't do anything.
+                if(!message[self.metaKey].hasOwnProperty('id')){
+                    return
+                }
 
-            // Worker (workerid) is an index for `cluster.workers`
-            let worker = message[self.metaKey].workerid
+                // Worker (workerid) is an index for `cluster.workers`
+                let worker = message[self.metaKey].workerid
 
-            // As forks can die, ensure we can emit a message back to this worker.
-            if(!cluster.workers[worker]){
-                return
-            }
+                // As forks can die, ensure we can emit a message back to this worker.
+                if(!cluster.workers[worker]){
+                    return
+                }
 
-            // Strip the original message of properties we don't need (eventName, data, workerid)
-            let responseMessage = {
-                id: message[self.metaKey].id,
-                response: response
-            }
+                // Strip the original message of properties we don't need (eventName, data, workerid)
+                let responseMessage = {
+                    id: message[self.metaKey].id,
+                    response: response
+                }
 
-            // When all event listeners have been called, tell the worker to dispose of the callback.
-            if(index == array.length - 1){
-                responseMessage.deleteCallback = true
-            }
+                // When all event listeners have been called, tell the worker to dispose of the callback.
+                if(index == array.length - 1){
+                    responseMessage.deleteCallback = true
+                }
 
-            cluster.workers[worker].send({
-                [self.metaKey]: responseMessage
+                cluster.workers[worker].send({
+                    [self.metaKey]: responseMessage
+                })
+
             })
-
         })
-    })
+    }
 }
 
 function emitCallbacks(self, message){

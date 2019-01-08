@@ -1,4 +1,4 @@
-# cluster-messages
+# cluster_message
 A helpful Node module to make it easy to send messages between the
 master and workers with callbacks.
 
@@ -8,7 +8,7 @@ Events can be emitted by any process and received by any process.
 
 Require the package:
 ```javascript
-let ClusterMessages = require('cluster-messages')
+let ClusterMessages = require('cluster_message')
 let messages = new ClusterMessages()
 ```
 

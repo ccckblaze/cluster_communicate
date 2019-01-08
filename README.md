@@ -1,4 +1,6 @@
-# cluster_message
+# cluster_message 
+based on Rob's work
+
 A helpful Node module to make it easy to send messages between the
 master and workers with callbacks.
 

@@ -8,8 +8,8 @@ Events can be emitted by any process and received by any process.
 
 Require the package:
 ```javascript
-let ClusterMessages = require('cluster_message')
-let messages = new ClusterMessages()
+let ClusterMessage = require('cluster_message')
+let messages = new ClusterMessage()
 ```
 
 Setting up event listeners:
